@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EML Email Creator</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:#f4f5f7; color:#1f2328; }
+  .wrap { max-width:1050px; margin:0 auto; padding:28px 18px 50px; }
+  h1 { margin:0 0 8px; font-size:28px; }
+  .sub { margin:0 0 22px; color:#666; }
+  .notice { background:#fff7d6; border:1px solid #e4cc68; padding:12px 14px; border-radius:10px; margin-bottom:18px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .full { grid-column:1 / -1; }
+  .card { background:white; border:1px solid #d9dce1; border-radius:12px; padding:18px; margin-bottom:16px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+  label { display:block; font-size:13px; font-weight:650; margin:0 0 6px; }
+  input, textarea, select { width:100%; box-sizing:border-box; border:1px solid #b9bec7; border-radius:8px; padding:9px 10px; font:inherit; background:#fff; color:#1f2328; }
+  textarea { min-height:110px; resize:vertical; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .small { font-size:12px; color:#70757d; margin-top:5px; }
+  .actions { display:flex; gap:10px; flex-wrap:wrap; }
+  button { border:0; border-radius:9px; padding:10px 15px; font-weight:700; cursor:pointer; }
+  #download { background:#0b6bcb; color:#fff; }
+  #previewBtn { background:#e9edf2; color:#1f2328; }
+  #exampleBtn { background:#e9edf2; color:#1f2328; }
+  #clearBtn { background:#f0dada; color:#6a1c1c; }
+  .status { margin-top:10px; font-size:13px; min-height:18px; }
+  details summary { cursor:pointer; font-weight:700; }
+  pre { background:#111318; color:#e7eaf0; padding:14px; border-radius:10px; overflow:auto; max-height:420px; white-space:pre-wrap; word-break:break-word; }
+  .checks { display:flex; gap:20px; flex-wrap:wrap; margin-top:8px; }
+  .checks label { display:flex; align-items:center; gap:6px; font-weight:500; }
+  .checks input { width:auto; }
+  @media (max-width:760px) { .grid,.row { grid-template-columns:1fr; } }
+  @media (prefers-color-scheme:dark) {
+    body{background:#111315;color:#eee}.card{background:#1a1d20;border-color:#333}.sub,.small{color:#aaa}.notice{background:#3b341b;border-color:#6d6027}
+    input,textarea,select{background:#111315;color:#eee;border-color:#555} #previewBtn,#exampleBtn{background:#30343a;color:#eee} #clearBtn{background:#472323;color:#ffdede}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>EML Email Creator</h1>
+  <p class="sub">Create a local RFC-style <code>.eml</code> message by entering the headers, date, body, and optional attachments.</p>
+  <div class="notice"><strong>Local file only:</strong> this tool does not send email or connect to iCloud, Gmail, Outlook, or any mail server. It only creates a file on your computer.</div>
+
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label>From name</label><input id="fromName" placeholder="John Smith">
+      </div>
+      <div>
+        <label>From email</label><input id="from" placeholder="sender@example.com">
+      </div>
+      <div>
+        <label>To</label><input id="to" placeholder="recipient@example.com">
+      </div>
+      <div>
+        <label>Cc</label><input id="cc" placeholder="Optional">
+      </div>
+      <div>
+        <label>Bcc</label><input id="bcc" placeholder="Optional">
+      </div>
+      <div>
+        <label>Reply-To</label><input id="replyTo" placeholder="Optional">
+      </div>
+      <div class="full">
+        <label>Subject</label><input id="subject" placeholder="TESTING…">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label>Date</label><input id="date" type="datetime-local" step="1">
+        <div class="small">You can enter a historical date and time.</div>
+      </div>
+      <div>
+        <label>Time zone offset</label>
+        <select id="tz">
+          <option value="-12:00">UTC−12:00</option><option value="-11:00">UTC−11:00</option><option value="-10:00">UTC−10:00</option><option value="-09:00">UTC−09:00</option><option value="-08:00">UTC−08:00</option><option value="-07:00" selected>UTC−07:00</option><option value="-06:00">UTC−06:00</option><option value="-05:00">UTC−05:00</option><option value="-04:00">UTC−04:00</option><option value="-03:00">UTC−03:00</option><option value="-02:00">UTC−02:00</option><option value="-01:00">UTC−01:00</option><option value="+00:00">UTC+00:00</option><option value="+01:00">UTC+01:00</option><option value="+02:00">UTC+02:00</option><option value="+03:00">UTC+03:00</option><option value="+04:00">UTC+04:00</option><option value="+05:00">UTC+05:00</option><option value="+06:00">UTC+06:00</option><option value="+07:00">UTC+07:00</option><option value="+08:00">UTC+08:00</option><option value="+09:00">UTC+09:00</option><option value="+10:00">UTC+10:00</option><option value="+11:00">UTC+11:00</option><option value="+12:00">UTC+12:00</option><option value="+13:00">UTC+13:00</option><option value="+14:00">UTC+14:00</option>
+        </select>
+      </div>
+      <div>
+        <label>Message-ID</label><input id="messageId" placeholder="Leave blank to generate one">
+        <div class="small">Example: &lt;abc123@example.com&gt;</div>
+      </div>
+      <div>
+        <label>In-Reply-To</label><input id="inReplyTo" placeholder="Optional Message-ID">
+      </div>
+      <div class="full">
+        <label>References</label><input id="references" placeholder="Optional prior Message-ID(s)">
+      </div>
+      <div class="full">
+        <label>Custom headers</label>
+        <textarea id="customHeaders" placeholder="Optional, one per line, for example:\nX-Mailer: My Mail App\nX-Test-Note: Historical archive"></textarea>
+        <div class="small">For testing/archival use. Enter header lines exactly as you want them.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>Body</label>
+    <textarea id="body" style="min-height:220px" placeholder="this is a test."></textarea>
+    <div class="checks">
+      <label><input type="checkbox" id="htmlMode"> Treat body as HTML</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>Attachments (optional)</label>
+    <input id="attachments" type="file" multiple>
+    <div class="small">Attachments are embedded into the generated MIME message.</div>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label>Output filename</label><input id="filename" placeholder="historical-email.eml">
+      </div>
+      <div>
+        <label>Preview</label><div class="small">Use Preview to inspect the raw message before downloading.</div>
+      </div>
+    </div>
+    <div class="actions" style="margin-top:14px">
+      <button id="download">Create .eml</button>
+      <button id="previewBtn">Preview raw EML</button>
+      <button id="exampleBtn">Load example</button>
+      <button id="clearBtn">Clear</button>
+    </div>
+    <div id="status" class="status"></div>
+  </div>
+
+  <details class="card"><summary>Raw EML preview</summary><pre id="preview">Nothing generated yet.</pre></details>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function pad(n){ return String(n).padStart(2,'0'); }
+function escapeHeaderText(s){ return String(s||'').replace(/[\r\n]/g,' ').trim(); }
+function qpEncode(str){
+  return String(str).replace(/[^\x20-\x7E]/g, ch => {
+    const bytes = new TextEncoder().encode(ch); return Array.from(bytes).map(b=>'='+b.toString(16).toUpperCase().padStart(2,'0')).join('');
+  }).replace(/=/g,'=3D');
+}
+function encodeHeaderValue(str){
+  str = escapeHeaderText(str);
+  if (/^[\x20-\x7E]*$/.test(str)) return str;
+  const bytes = new TextEncoder().encode(str);
+  let out='';
+  for(const b of bytes) out += '=' + b.toString(16).toUpperCase().padStart(2,'0');
+  return '=?UTF-8?Q?' + out + '?=';
+}
+function encodeAddress(name,email){
+  const e = escapeHeaderText(email);
+  const n = escapeHeaderText(name);
+  if(!n) return e;
+  return `${encodeHeaderValue(n)} <${e}>`;
+}
+function toRfcDate(localValue, offset){
+  if(!localValue) return null;
+  const [d,t] = localValue.split('T');
+  const [y,m,day] = d.split('-').map(Number);
+  const [hh,mm,ss0='00'] = t.split(':');
+  const sign = offset.startsWith('-') ? -1 : 1;
+  const [oh,om] = offset.slice(1).split(':').map(Number);
+  const total = sign*(oh*60+om);
+  const weekday = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const ms = Date.UTC(y,m-1,day,Number(hh),Number(mm),Number(ss0)) - total*60000;
+  const utc = new Date(ms);
+  const wd = weekday[utc.getUTCDay()];
+  return `${wd}, ${pad(day)} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1]} ${y} ${hh}:${mm}:${ss0} ${offset.replace(':','')}`;
+}
+function randomId(from){
+  const domain = (from||'example.com').split('@')[1] || 'example.com';
+  const a = Math.random().toString(36).slice(2,12);
+  const b = Date.now().toString(36);
+  return `<${a}.${b}@${domain}>`;
+}
+function foldHeader(name,value){
+  const line = `${name}: ${value}`;
+  if(line.length <= 78) return line;
+  let out='', current=line;
+  while(current.length>78){
+    let cut=current.lastIndexOf(' ',78); if(cut<20) cut=78;
+    out += current.slice(0,cut)+'\r\n'; current=' '+current.slice(cut+1);
+  }
+  return out+current;
+}
+function asciiSafeText(s){ return String(s).replace(/\r?\n/g,'\r\n'); }
+function b64(bytes){
+  let binary=''; const chunk=0x8000;
+  for(let i=0;i<bytes.length;i+=chunk) binary += String.fromCharCode(...bytes.subarray(i,i+chunk));
+  const raw=btoa(binary); let out='';
+  for(let i=0;i<raw.length;i+=76) out += raw.slice(i,i+76)+'\r\n';
+  return out.trimEnd();
+}
+function escapeFilename(s){ return String(s||'attachment').replace(/[\r\n"\\]/g,'_'); }
+async function readAttachment(file){ const bytes=new Uint8Array(await file.arrayBuffer()); return {name:file.name,type:file.type||'application/octet-stream',data:b64(bytes)}; }
+
+async function buildEml(){
+  const from = $('from').value.trim();
+  const to = $('to').value.trim();
+  if(!from || !to) throw new Error('From email and To are required.');
+  const subject = $('subject').value;
+  const body = $('body').value;
+  const date = toRfcDate($('date').value,$('tz').value);
+  if(!date) throw new Error('Please enter a date and time.');
+  const mid = $('messageId').value.trim() || randomId(from);
+  const headers=[];
+  headers.push(foldHeader('Date',date));
+  headers.push(foldHeader('From',encodeAddress($('fromName').value,from)));
+  headers.push(foldHeader('To',escapeHeaderText(to)));
+  if($('cc').value.trim()) headers.push(foldHeader('Cc',escapeHeaderText($('cc').value)));
+  if($('bcc').value.trim()) headers.push(foldHeader('Bcc',escapeHeaderText($('bcc').value)));
+  if($('replyTo').value.trim()) headers.push(foldHeader('Reply-To',escapeHeaderText($('replyTo').value)));
+  headers.push(foldHeader('Subject',encodeHeaderValue(subject)));
+  headers.push(foldHeader('Message-ID',mid));
+  if($('inReplyTo').value.trim()) headers.push(foldHeader('In-Reply-To',$('inReplyTo').value.trim()));
+  if($('references').value.trim()) headers.push(foldHeader('References',$('references').value.trim()));
+  headers.push('MIME-Version: 1.0');
+
+  const files=[...$('attachments').files];
+  const atts=[]; for(const f of files) atts.push(await readAttachment(f));
+  const isHtml=$('htmlMode').checked;
+  let bodyBlock;
+  if(atts.length){
+    const boundary='----=_EML_CREATOR_'+Math.random().toString(16).slice(2);
+    headers.push(`Content-Type: multipart/mixed; boundary="${boundary}"`);
+    const parts=[];
+    parts.push(`--${boundary}\r\nContent-Type: ${isHtml?'text/html':'text/plain'}; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n${asciiSafeText(body)}`);
+    for(const a of atts){
+      parts.push(`--${boundary}\r\nContent-Type: ${a.type}; name="${escapeFilename(a.name)}"\r\nContent-Disposition: attachment; filename="${escapeFilename(a.name)}"\r\nContent-Transfer-Encoding: base64\r\n\r\n${a.data}`);
+    }
+    parts.push(`--${boundary}--`);
+    bodyBlock=parts.join('\r\n');
+  } else {
+    headers.push(`Content-Type: ${isHtml?'text/html':'text/plain'}; charset=UTF-8`);
+    headers.push('Content-Transfer-Encoding: 8bit');
+    bodyBlock=asciiSafeText(body);
+  }
+  const custom=$('customHeaders').value.split(/\r?\n/).map(x=>x.trimEnd()).filter(Boolean);
+  const filtered=[];
+  for(const line of custom){
+    if(/^\s*(date|from|to|cc|bcc|reply-to|subject|message-id|in-reply-to|references|mime-version|content-type|content-transfer-encoding)\s*:/i.test(line)) continue;
+    filtered.push(line);
+  }
+  if(filtered.length){ headers.push(...filtered); }
+  return headers.join('\r\n')+'\r\n\r\n'+bodyBlock+'\r\n';
+}
+function defaultFilename(){
+  const s=$('subject').value.trim() || 'email';
+  const d=$('date').value.slice(0,10) || new Date().toISOString().slice(0,10);
+  return `${d} - ${s.replace(/[\\/:*?"<>|]/g,'_').slice(0,90)}.eml`;
+}
+async function generate(download){
+  try{
+    const eml=await buildEml();
+    $('preview').textContent=eml;
+    $('status').textContent= download ? 'EML created.' : 'Preview updated.';
+    if(download){
+      const blob=new Blob([eml],{type:'message/rfc822'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=($('filename').value.trim() || defaultFilename());
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    }
+  }catch(e){ $('status').textContent='Error: '+e.message; }
+}
+$('previewBtn').onclick=()=>generate(false);
+$('download').onclick=()=>generate(true);
+$('exampleBtn').onclick=()=>{
+  $('fromName').value=''; $('from').value='test@test.test'; $('to').value='colbyscotteaton@icloud.com';
+  $('cc').value=''; $('bcc').value=''; $('replyTo').value=''; $('subject').value='TESTING…'; $('date').value='2015-02-04T12:00:00'; $('tz').value='-07:00';
+  $('messageId').value=''; $('inReplyTo').value=''; $('references').value=''; $('customHeaders').value=''; $('body').value='this is a test.'; $('htmlMode').checked=false; $('filename').value='2015-02-04 - TESTING….eml'; $('attachments').value='';
+  $('status').textContent='Example loaded.';
+};
+$('clearBtn').onclick=()=>{ document.querySelectorAll('input:not([type=file]),textarea').forEach(el=>el.value=''); $('attachments').value=''; $('htmlMode').checked=false; $('preview').textContent='Nothing generated yet.'; $('status').textContent='Cleared.'; };
+// Default date to today for convenience.
+const now=new Date(); $('date').value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:00`;
+</script>
+</body>
+</html>
